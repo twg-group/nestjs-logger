@@ -9,9 +9,15 @@ node_modules
 **/*.ts
 *.ts
 
+# definitions
+!**/*.d.ts
+!*.d.ts
+
 # configuration
 .eslintrc.js
 .prettierrc
 .nvmrc
 tsconfig.json
 yarn.lock
+
+*.tsbuildinfo
