@@ -52,10 +52,7 @@ export class Logger extends ConsoleLogger {
     options: LoggerOptions = {},
     @Inject(INQUIRER) private readonly parentClass?: object,
   ) {
-    super(
-      context || parentClass?.constructor?.name || 'NestApplication',
-      options,
-    );
+    super(context || parentClass?.constructor?.name, options);
     this.options = { ...defaultOptions, ...options };
   }
 
