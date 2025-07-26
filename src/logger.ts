@@ -2,7 +2,13 @@ import { ConsoleLogger, Inject, Injectable, Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
 import * as process from 'process';
 import * as util from 'node:util';
-import { clc, LoggerLevelFormats, LoggerOptions } from './interfaces';
+import {
+  clc,
+  LoggerLevelFormats,
+  LoggerModuleOptions,
+  LoggerOptions,
+} from './interfaces';
+import { LOGGER_MODULE_OPTIONS } from './logger.module';
 
 const levelFormats: LoggerLevelFormats = {
   LOG: {
@@ -49,10 +55,15 @@ export class Logger extends ConsoleLogger {
 
   constructor(
     context?: string,
-    options: LoggerOptions = {},
+    options?: LoggerOptions,
     @Inject(INQUIRER) private readonly parentClass?: object,
+    @Inject(LOGGER_MODULE_OPTIONS)
+    private readonly moduleOptions?: LoggerModuleOptions,
   ) {
-    super(context || parentClass?.constructor?.name, options);
+    super(
+      context || parentClass?.constructor?.name,
+      moduleOptions?.loggerOptions,
+    );
     this.options = { ...defaultOptions, ...options };
   }
 
