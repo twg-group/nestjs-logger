@@ -1,5 +1,5 @@
 import * as colors from '@nestjs/common/utils/cli-colors.util';
-import { ConsoleLoggerOptions } from '@nestjs/common';
+import { ConsoleLoggerOptions, LogLevel as NestLogLevel } from '@nestjs/common';
 
 export const colorsExtended = {
   gray: (text: string) => `\x1b[90m${text}\x1b[0m`,
@@ -26,22 +26,23 @@ export interface LevelFormat {
 export interface LoggerLevelFormats {
   LOG: LevelFormat;
   ERROR: LevelFormat;
+  FATAL: LevelFormat;
   WARN: LevelFormat;
   INFO: LevelFormat;
   DEBUG: LevelFormat;
   VERBOSE: LevelFormat;
 }
 
-export type LoggerOptions = {
+export type LogLevel = NestLogLevel | 'info';
+
+export type LoggerOptions = Omit<ConsoleLoggerOptions, 'logLevels'> & {
   id?: string;
-  debug?: boolean;
   jsonFormat?: boolean;
   prettyPrintJson?: boolean;
   levelFormats?: LoggerLevelFormats;
-  redactKeys?: Set<string>;
-  isGlobal?: boolean;
-  context?: string;
-} & ConsoleLoggerOptions;
+  redactKeys?: string[];
+  logLevels?: LogLevel[];
+};
 
 export type LoggerModuleOptions = {
   context?: string;

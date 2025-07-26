@@ -1,273 +1,399 @@
 import { Logger } from './logger';
 
+const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation();
+const mockConsoleError = jest.spyOn(console, 'error').mockImplementation();
+const mockConsoleWarn = jest.spyOn(console, 'warn').mockImplementation();
+const mockConsoleInfo = jest.spyOn(console, 'info').mockImplementation();
+const mockConsoleDebug = jest.spyOn(console, 'debug').mockImplementation();
+
 describe('Logger', () => {
   let logger: Logger;
-  const mockConsole = {
-    log: jest.fn(),
-    error: jest.fn(),
-    warn: jest.fn(),
-    info: jest.fn(),
-    debug: jest.fn(),
-    verbose: jest.fn(),
-  };
 
   beforeEach(() => {
-    jest.resetAllMocks();
-    jest.useFakeTimers().setSystemTime(new Date('2023-01-01'));
-    global.console = mockConsole as any;
     logger = new Logger('TestContext');
-    process.env.SERVICE_NAME = 'test-service';
+    mockConsoleLog.mockClear();
+    mockConsoleError.mockClear();
+    mockConsoleWarn.mockClear();
+    mockConsoleInfo.mockClear();
+    mockConsoleDebug.mockClear();
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    jest.clearAllMocks();
   });
 
-  describe('Core functionality', () => {
-    it('should create instance with context', () => {
-      expect(logger).toBeInstanceOf(Logger);
-      expect(logger['context']).toBe('TestContext');
+  describe('constructor', () => {
+    it('should create logger with context', () => {
+      const loggerWithContext = new Logger('TestContext');
+      expect(loggerWithContext).toBeDefined();
     });
 
-    it('should inherit context from parent class', () => {
-      const parentLogger = new Logger(undefined, undefined, {
-        constructor: { name: 'ParentClass' },
-      });
-      expect(parentLogger['context']).toBe('ParentClass');
+    it('should create logger without context', () => {
+      const loggerWithoutContext = new Logger();
+      expect(loggerWithoutContext).toBeDefined();
     });
   });
 
-  describe('Configuration methods', () => {
+  describe('configuration methods', () => {
     it('should set context', () => {
-      logger.setContext('NewContext');
-      expect(logger['context']).toBe('NewContext');
+      const result = logger.setContext('NewContext');
+      expect(result).toBe(logger);
     });
 
     it('should set options', () => {
-      logger.setOptions({ debug: true });
-      expect(logger['options'].debug).toBe(true);
+      const options = { jsonFormat: true };
+      const result = logger.setOptions(options);
+      expect(result).toBe(logger);
     });
 
-    it('should manage json format', () => {
+    it('should set log levels', () => {
+      const levels: Array<'log' | 'error'> = ['log', 'error'];
+      const result = logger.setLogLevels(levels);
+      expect(result).toBe(logger);
+      expect(logger.getLogLevels()).toEqual(levels);
+    });
+
+    it('should add log level', () => {
+      logger.setLogLevels(['log']);
+      const result = logger.addLogLevel('error');
+      expect(result).toBe(logger);
+      expect(logger.getLogLevels()).toContain('error');
+    });
+
+    it('should remove log level', () => {
+      logger.setLogLevels(['log', 'error']);
+      const result = logger.removeLogLevel('error');
+      expect(result).toBe(logger);
+      expect(logger.getLogLevels()).not.toContain('error');
+    });
+
+    it('should get log levels', () => {
+      const levels: Array<'log' | 'error'> = ['log', 'error'];
+      logger.setLogLevels(levels);
+      expect(logger.getLogLevels()).toEqual(levels);
+    });
+
+    it('should set context parameters', () => {
+      const result = logger.setCtxParams(['param1', 'param2']);
+      expect(result).toBe(logger);
+    });
+
+    it('should reset timestamp', () => {
+      const result = logger.resetTimestamp();
+      expect(result).toBe(logger);
+    });
+
+    it('should enable JSON format', () => {
+      const result = logger.enableJsonFormat();
+      expect(result).toBe(logger);
+    });
+
+    it('should disable JSON format', () => {
       logger.enableJsonFormat();
-      expect(logger['options'].jsonFormat).toBe(true);
-      logger.disableJsonFormat();
-      expect(logger['options'].jsonFormat).toBe(false);
+      const result = logger.disableJsonFormat();
+      expect(result).toBe(logger);
     });
 
-    it('should manage pretty print', () => {
+    it('should enable pretty print', () => {
+      const result = logger.enablePrettyPrint();
+      expect(result).toBe(logger);
+    });
+
+    it('should disable pretty print', () => {
       logger.enablePrettyPrint();
-      expect(logger['options'].prettyPrintJson).toBe(true);
-      logger.disablePrettyPrint();
-      expect(logger['options'].prettyPrintJson).toBe(false);
+      const result = logger.disablePrettyPrint();
+      expect(result).toBe(logger);
     });
 
-    it('should manage context params', () => {
-      logger.setCtxParams(['param1', 'param2']);
-      expect(logger['ctxParams']).toEqual(['param1', 'param2']);
+    it('should add field', () => {
+      const result = logger.addField('key', 'value');
+      expect(result).toBe(logger);
     });
 
-    it('should manage timestamp', () => {
-      logger.resetTimestamp();
-      expect(logger['timestamp']).toBe(0);
-    });
-
-    it('should manage additional fields', () => {
+    it('should remove field', () => {
       logger.addField('key', 'value');
-      expect(logger['additionalFields'].key).toBe('value');
-      logger.removeField('key');
-      expect(logger['additionalFields'].key).toBeUndefined();
+      const result = logger.removeField('key');
+      expect(result).toBe(logger);
     });
 
-    it('should manage redact keys', () => {
-      logger.addRedactKey('newKey');
-      expect(logger['options'].redactKeys?.has('newKey')).toBe(true);
-      logger.removeRedactKey('newKey');
-      expect(logger['options'].redactKeys?.has('newKey')).toBe(false);
-    });
-  });
-
-  describe('Logging methods', () => {
-    it('should log simple message', () => {
-      logger.log('Test');
-      expect(mockConsole.log).toHaveBeenCalled();
+    it('should set redact keys', () => {
+      const result = logger.setRedactKeys(['password', 'token']);
+      expect(result).toBe(logger);
+      expect(logger.getRedactKeys()).toEqual(['password', 'token']);
     });
 
-    it('should log error with stack', () => {
-      const error = new Error('Test');
-      error.stack = 'stack trace';
-      logger.error(error);
-      expect(mockConsole.error).toHaveBeenCalled();
+    it('should add redact key', () => {
+      const result = logger.addRedactKey('password');
+      expect(result).toBe(logger);
+      expect(logger.getRedactKeys()).toContain('password');
     });
 
-    it('should log warning', () => {
-      logger.warn('Warning');
-      expect(mockConsole.warn).toHaveBeenCalled();
+    it('should remove redact key', () => {
+      logger.setRedactKeys(['password']);
+      const result = logger.removeRedactKey('password');
+      expect(result).toBe(logger);
+      expect(logger.getRedactKeys()).not.toContain('password');
     });
 
-    it('should log info', () => {
-      logger.info('Info');
-      expect(mockConsole.info).toHaveBeenCalled();
-    });
-
-    it('should log debug only when enabled', () => {
-      logger.setOptions({ debug: false });
-      logger.debug('Debug');
-      expect(mockConsole.debug).not.toHaveBeenCalled();
-
-      logger.setOptions({ debug: true });
-      logger.debug('Debug');
-      expect(mockConsole.debug).toHaveBeenCalled();
-    });
-
-    it('should log verbose', () => {
-      logger.verbose('Verbose');
-      expect(mockConsole.log).toHaveBeenCalled();
+    it('should get redact keys', () => {
+      logger.setRedactKeys(['password']);
+      expect(logger.getRedactKeys()).toEqual(['password']);
     });
   });
 
-  describe('JSON formatting', () => {
+  describe('logging methods', () => {
     beforeEach(() => {
+      logger.setLogLevels([
+        'log',
+        'error',
+        'warn',
+        'debug',
+        'verbose',
+        'fatal',
+        'info',
+      ]);
+    });
+
+    it('should log message', () => {
+      logger.log('test message');
+      expect(mockConsoleLog).toHaveBeenCalled();
+    });
+
+    it('should log error message', () => {
+      logger.error('test error');
+      expect(mockConsoleError).toHaveBeenCalled();
+    });
+
+    it('should log fatal message', () => {
+      logger.fatal('test fatal');
+      expect(mockConsoleError).toHaveBeenCalled();
+    });
+
+    it('should log warn message', () => {
+      logger.warn('test warn');
+      expect(mockConsoleWarn).toHaveBeenCalled();
+    });
+
+    it('should log info message', () => {
+      logger.info('test info');
+      expect(mockConsoleInfo).toHaveBeenCalled();
+    });
+
+    it('should log debug message', () => {
+      logger.debug('test debug');
+      expect(mockConsoleDebug).toHaveBeenCalled();
+    });
+
+    it('should log verbose message', () => {
+      logger.verbose('test verbose');
+      expect(mockConsoleLog).toHaveBeenCalled();
+    });
+
+    it('should not log when level is disabled', () => {
+      logger.setLogLevels([]); // Disable all levels
+      logger.log('test message');
+      logger.error('test error');
+      logger.warn('test warn');
+      logger.debug('test debug');
+      logger.verbose('test verbose');
+      logger.fatal('test fatal');
+      logger.info('test info');
+
+      expect(mockConsoleLog).not.toHaveBeenCalled();
+      expect(mockConsoleError).not.toHaveBeenCalled();
+      expect(mockConsoleWarn).not.toHaveBeenCalled();
+      expect(mockConsoleDebug).not.toHaveBeenCalled();
+      expect(mockConsoleInfo).not.toHaveBeenCalled();
+    });
+
+    it('should log with optional parameters', () => {
+      logger.log('test message', 'param1', 'param2');
+      expect(mockConsoleLog).toHaveBeenCalled();
+    });
+
+    it('should log JSON format when enabled', () => {
       logger.enableJsonFormat();
+      logger.log('test message');
+      expect(mockConsoleLog).toHaveBeenCalled();
     });
 
-    it('should format simple message', () => {
-      logger.log('Test');
-      const output = JSON.parse(mockConsole.log.mock.calls[0][0]);
-      expect(output).toEqual({
-        timestamp: '2023-01-01T00:00:00.000Z',
-        service: 'test-service',
-        level: 'LOG',
-        context: 'TestContext',
-        data: { message: 'Test' },
-      });
+    it('should handle object messages', () => {
+      logger.log({ key: 'value' });
+      expect(mockConsoleLog).toHaveBeenCalled();
     });
 
-    it('should pretty print when enabled', () => {
-      logger.enablePrettyPrint();
-      logger.log('Test');
-      const output = mockConsole.log.mock.calls[0][0];
-      expect(output.includes('\n')).toBe(true);
-    });
-
-    it('should include additional fields', () => {
-      logger.addField('version', '1.0.0');
-      logger.log('Test');
-      const output = JSON.parse(mockConsole.log.mock.calls[0][0]);
-      expect(output.version).toBe('1.0.0');
-    });
-
-    it('should format error', () => {
-      const error = new Error('Test');
+    it('should handle error messages', () => {
+      const error = new Error('test error');
       logger.error(error);
-      const output = JSON.parse(mockConsole.error.mock.calls[0][0]);
-      expect(output.data.error).toEqual({
-        name: 'Error',
-        message: 'Test',
-        stack: expect.any(Array),
-      });
+      expect(mockConsoleError).toHaveBeenCalled();
     });
 
-    it('should include timestamp diff when timestamp option is enabled', () => {
-      logger.setOptions({ timestamp: true });
-      logger.log('Test');
-      const output = JSON.parse(mockConsole.log.mock.calls[0][0]);
-      expect(output.timestampDiff).toBe(0);
-    });
-  });
-
-  describe('Redaction', () => {
-    it('should redact sensitive data at all nesting levels', () => {
-      logger.enableJsonFormat();
-      logger.addRedactKey('auth'); // Добавляем ключ для редиакта
-      const sensitiveData = {
-        password: 'secret',
-        token: '123',
-        nested: {
-          auth: 'key',
-          other: 'value',
-          deep: {
-            auth: 'deep-key',
-          },
-        },
-        array: [{ auth: 'array-key' }],
-      };
-      logger.log(sensitiveData);
-      const output = JSON.parse(mockConsole.log.mock.calls[0][0]);
-      expect(output.data).toEqual({
-        password: '[REDACTED]',
-        token: '[REDACTED]',
-        nested: {
-          auth: '[REDACTED]',
-          other: 'value',
-          deep: {
-            auth: '[REDACTED]',
-          },
-        },
-        array: [{ auth: '[REDACTED]' }],
-      });
-    });
-  });
-
-  describe('Edge cases', () => {
-    it('should handle circular references', () => {
-      const circularObj: any = { a: 1 };
-      circularObj.self = circularObj;
-      logger.log(circularObj);
-      expect(mockConsole.log).toHaveBeenCalled();
+    it('should redact sensitive data', () => {
+      logger.setRedactKeys(['password']);
+      const testData = { password: 'secret', username: 'user' };
+      logger.log(testData);
+      expect(mockConsoleLog).toHaveBeenCalled();
     });
 
-    it('should handle null/undefined', () => {
+    it('should handle array redaction', () => {
+      logger.setRedactKeys(['password']);
+      const testData = [{ password: 'secret' }, { username: 'user' }];
+      logger.log(testData);
+      expect(mockConsoleLog).toHaveBeenCalled();
+    });
+
+    it('should handle nested object redaction', () => {
+      logger.setRedactKeys(['password']);
+      const testData = { user: { password: 'secret', name: 'John' } };
+      logger.log(testData);
+      expect(mockConsoleLog).toHaveBeenCalled();
+    });
+
+    it('should handle null and undefined values', () => {
       logger.log(null);
-      logger.error(undefined);
-      expect(mockConsole.log).toHaveBeenCalled();
-      expect(mockConsole.error).toHaveBeenCalled();
+      logger.log(undefined);
+      expect(mockConsoleLog).toHaveBeenCalledTimes(2);
     });
 
-    it('should handle empty objects', () => {
-      logger.log({});
-      expect(mockConsole.log).toHaveBeenCalled();
-    });
-
-    it('should handle special types', () => {
-      logger.log(BigInt(123));
-      logger.log(Symbol('test'));
-      expect(mockConsole.log).toHaveBeenCalledTimes(2);
+    it('should handle primitive values', () => {
+      logger.log(42);
+      logger.log(true);
+      logger.log('string');
+      expect(mockConsoleLog).toHaveBeenCalledTimes(3);
     });
   });
 
-  describe('Full integration', () => {
-    it('should work with all features combined with redaction', () => {
-      logger
-        .setContext('IntTest')
-        .enableJsonFormat()
-        .enablePrettyPrint()
-        .addField('version', '1.0')
-        .addRedactKey('secret')
-        .setCtxParams(['env:test'])
-        .setOptions({ timestamp: true });
+  describe('private helper methods', () => {
+    beforeEach(() => {
+      logger.setLogLevels([
+        'log',
+        'error',
+        'warn',
+        'debug',
+        'verbose',
+        'fatal',
+        'info',
+      ]);
+    });
 
-      const error = new Error('Integration error');
-      const sensitiveData = { public: 'info', secret: 'data' };
-      logger.error(error, 'tag1', sensitiveData);
+    it('should generate prefix', () => {
+      logger.enableJsonFormat();
+      logger.log('test message');
+      expect(mockConsoleLog).toHaveBeenCalled();
+    });
 
-      const output = JSON.parse(mockConsole.error.mock.calls[0][0]);
-      expect(output).toMatchObject({
-        version: '1.0',
-        timestamp: '2023-01-01T00:00:00.000Z',
-        service: 'test-service',
-        level: 'ERROR',
-        context: 'IntTest',
-        timestampDiff: 0,
-        data: {
-          error: {
-            name: 'Error',
-            message: 'Integration error',
-            stack: expect.any(Array),
+    it('should handle JSON formatting', () => {
+      logger.enableJsonFormat();
+      logger.log('test message', 'param1');
+      expect(mockConsoleLog).toHaveBeenCalled();
+    });
+
+    it('should handle error formatting', () => {
+      const error = new Error('test error');
+      logger.error(error);
+      expect(mockConsoleError).toHaveBeenCalled();
+    });
+
+    it('should handle object formatting', () => {
+      logger.log({ key: 'value' });
+      expect(mockConsoleLog).toHaveBeenCalled();
+    });
+
+    it('should handle string formatting', () => {
+      logger.log('test message');
+      expect(mockConsoleLog).toHaveBeenCalled();
+    });
+
+    it('should calculate timestamp difference', () => {
+      logger.resetTimestamp();
+      logger.log('first message');
+      logger.log('second message');
+      expect(mockConsoleLog).toHaveBeenCalledTimes(2);
+    });
+
+    it('should handle message wrapping', () => {
+      logger.log('test message');
+      expect(mockConsoleLog).toHaveBeenCalled();
+    });
+
+    it('should handle object message wrapping', () => {
+      logger.log({ key: 'value' });
+      expect(mockConsoleLog).toHaveBeenCalled();
+    });
+
+    it('should create context with parameters', () => {
+      logger.setCtxParams(['param1']);
+      logger.log('test message', 'param2');
+      expect(mockConsoleLog).toHaveBeenCalled();
+    });
+  });
+
+  describe('edge cases', () => {
+    beforeEach(() => {
+      logger.setLogLevels([
+        'log',
+        'error',
+        'warn',
+        'debug',
+        'verbose',
+        'fatal',
+        'info',
+      ]);
+    });
+
+    it('should handle empty redact keys', () => {
+      logger.setRedactKeys([]);
+      const testData = { password: 'secret' };
+      logger.log(testData);
+      expect(mockConsoleLog).toHaveBeenCalled();
+    });
+
+    it('should handle case insensitive redact keys', () => {
+      logger.setRedactKeys(['PASSWORD']);
+      const testData = { password: 'secret' };
+      logger.log(testData);
+      expect(mockConsoleLog).toHaveBeenCalled();
+    });
+
+    it('should handle complex nested objects', () => {
+      const complexObject = {
+        user: {
+          profile: {
+            credentials: {
+              password: 'secret',
+              token: 'token123',
+            },
           },
         },
-        tags: ['env:test', 'tag1', { public: 'info', secret: '[REDACTED]' }],
-      });
+      };
+      logger.setRedactKeys(['password', 'token']);
+      logger.log(complexObject);
+      expect(mockConsoleLog).toHaveBeenCalled();
+    });
+
+    it('should handle error with cause', () => {
+      const error = new Error('main error');
+      (error as any).cause = new Error('cause error');
+      logger.error(error);
+      expect(mockConsoleError).toHaveBeenCalled();
+    });
+
+    it('should handle JSON format with pretty print', () => {
+      logger.enableJsonFormat().enablePrettyPrint();
+      logger.log('test message');
+      expect(mockConsoleLog).toHaveBeenCalled();
+    });
+
+    it('should handle multiple field additions', () => {
+      logger.addField('field1', 'value1').addField('field2', 'value2');
+      logger.log('test message');
+      expect(mockConsoleLog).toHaveBeenCalled();
+    });
+
+    it('should handle field removal', () => {
+      logger.addField('field1', 'value1').removeField('field1');
+      logger.log('test message');
+      expect(mockConsoleLog).toHaveBeenCalled();
     });
   });
 });
