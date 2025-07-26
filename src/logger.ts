@@ -38,7 +38,7 @@ const levelFormats: LoggerLevelFormats = {
 };
 
 const defaultOptions: LoggerOptions = {
-  id: process.env.SERVICE_NAME || 'Nats',
+  id: process.env.SERVICE_NAME || 'Nest',
   debug: false,
   jsonFormat: false,
   prettyPrintJson: false,
