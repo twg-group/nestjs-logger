@@ -1,7 +1,8 @@
-import { Module, DynamicModule, Provider } from '@nestjs/common';
+import { Module, DynamicModule, Provider, Global } from '@nestjs/common';
 import { Logger } from './logger';
 import { LoggerModuleOptions } from './interfaces';
 
+@Global()
 @Module({})
 export class LoggerModule {
   static forRoot(options: LoggerModuleOptions = {}): DynamicModule {
@@ -9,14 +10,10 @@ export class LoggerModule {
       provide: Logger,
       useValue: new Logger(options.context, options.loggerOptions),
     };
-    const module: DynamicModule = {
+    return {
       module: LoggerModule,
       providers: [loggerProvider],
       exports: [loggerProvider],
     };
-    if (options.isGlobal) {
-      module.global = true;
-    }
-    return module;
   }
 }

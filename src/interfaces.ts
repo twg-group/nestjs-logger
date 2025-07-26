@@ -44,7 +44,6 @@ export type LoggerOptions = {
 } & ConsoleLoggerOptions;
 
 export type LoggerModuleOptions = {
-  isGlobal?: boolean;
   context?: string;
   loggerOptions?: LoggerOptions;
 };
