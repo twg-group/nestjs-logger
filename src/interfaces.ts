@@ -39,4 +39,12 @@ export type LoggerOptions = {
   prettyPrintJson?: boolean;
   levelFormats?: LoggerLevelFormats;
   redactKeys?: Set<string>;
+  isGlobal?: boolean;
+  context?: string;
 } & ConsoleLoggerOptions;
+
+export type LoggerModuleOptions = {
+  isGlobal?: boolean;
+  context?: string;
+  options?: LoggerOptions;
+};
