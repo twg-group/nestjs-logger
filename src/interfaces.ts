@@ -46,5 +46,5 @@ export type LoggerOptions = {
 export type LoggerModuleOptions = {
   isGlobal?: boolean;
   context?: string;
-  options?: LoggerOptions;
+  loggerOptions?: LoggerOptions;
 };
