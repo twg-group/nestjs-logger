@@ -55,16 +55,19 @@ export class Logger extends ConsoleLogger {
 
   constructor(
     context?: string,
-    options?: LoggerOptions,
+    options: LoggerOptions = {},
     @Inject(INQUIRER) private readonly parentClass?: object,
     @Inject(LOGGER_MODULE_OPTIONS)
     private readonly moduleOptions?: LoggerModuleOptions,
   ) {
-    super(
-      context || parentClass?.constructor?.name,
-      moduleOptions?.loggerOptions,
-    );
-    this.options = { ...defaultOptions, ...options };
+    const currentContext = context || parentClass?.constructor?.name;
+    const mergedOptions = {
+      ...defaultOptions,
+      ...(moduleOptions?.loggerOptions || {}),
+      ...options,
+    };
+    super(currentContext, mergedOptions);
+    this.options = mergedOptions;
   }
 
   private prefix(): string {
