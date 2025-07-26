@@ -325,7 +325,6 @@ customLogger.error('Custom error message');
 
 ```bash
 SERVICE_NAME=MyAwesomeService  # used as logger id by default
-NODE_ENV=production            # affects log format
 ```
 
 ## Best Practices
