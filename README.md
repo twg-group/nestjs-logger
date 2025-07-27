@@ -30,7 +30,6 @@ Extended logger for NestJS with additional features:
   - [In Controllers](#in-controllers)
   - [In Guards and Interceptors](#in-guards-and-interceptors)
   - [Creating Separate Instances](#creating-separate-instances)
-- [Environment Variables](#environment-variables)
 - [Best Practices](#best-practices)
 - [License](#license)
 
