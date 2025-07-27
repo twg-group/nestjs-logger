@@ -49,7 +49,7 @@ const levelFormats: LoggerLevelFormats = {
 };
 
 const defaultOptions: LoggerOptions = {
-  id: process.env.SERVICE_NAME || 'Nest',
+  id: 'Nest',
   jsonFormat: false,
   prettyPrintJson: false,
   levelFormats,

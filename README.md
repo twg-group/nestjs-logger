@@ -309,12 +309,6 @@ const customLogger = new Logger('CustomContext', {
 customLogger.error('Custom error message');
 ```
 
-## Environment Variables
-
-```bash
-SERVICE_NAME=MyAwesomeService  # used as logger id by default
-```
-
 ## Best Practices
 
 1. **Use Context**: Always set meaningful context for the logger
