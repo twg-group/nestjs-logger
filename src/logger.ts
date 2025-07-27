@@ -4,7 +4,6 @@ import {
   Inject,
   Injectable,
   Scope,
-  LogLevel as NestLogLevel,
 } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
 import * as process from 'process';
@@ -97,11 +96,7 @@ export class Logger extends ConsoleLogger {
     };
     const consoleOptions: ConsoleLoggerOptions = {
       ...mergedOptions,
-      logLevels: mergedOptions.logLevels?.filter((level) =>
-        ['log', 'error', 'warn', 'debug', 'verbose', 'fatal'].includes(
-          level as string,
-        ),
-      ) as NestLogLevel[] | [],
+      ...{ logLevels: [] },
     };
     super(currentContext, consoleOptions);
     this.setOptions(mergedOptions);

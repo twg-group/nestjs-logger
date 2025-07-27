@@ -1,5 +1,12 @@
 # Logger Module for NestJS
 
+Extended logger for NestJS with additional features:
+- Colored console formatting
+- JSON logging format
+- Sensitive data redaction
+- Additional fields and context
+- Flexible logging levels
+
 ## Table of Contents
 - [Installation](#installation)
 - [Quick Start](#quick-start)
@@ -26,13 +33,6 @@
 - [Environment Variables](#environment-variables)
 - [Best Practices](#best-practices)
 - [License](#license)
-
-Extended logger for NestJS with additional features:
-- Colored console formatting
-- JSON logging format
-- Sensitive data redaction
-- Additional fields and context
-- Flexible logging levels
 
 ## Installation
 
@@ -267,7 +267,7 @@ setTimeout(() => {
 @Controller('users')
 export class UserController {
   constructor(private readonly logger: Logger) {
-    this.logger.setContext('UserController');
+    // Context is automatically set to 'UserController'
   }
 
   @Post()
@@ -284,7 +284,7 @@ export class UserController {
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private readonly logger: Logger) {
-    this.logger.setContext('AuthGuard');
+    // Context is automatically set to 'AuthGuard'
   }
 
   canActivate(context: ExecutionContext): boolean {
