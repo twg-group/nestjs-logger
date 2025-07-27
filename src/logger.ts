@@ -28,8 +28,8 @@ const levelFormats: LoggerLevelFormats = {
     messageColor: clc.redBright,
   },
   FATAL: {
-    levelColor: clc.redBright,
-    messageColor: clc.redBright,
+    levelColor: clc.redOrange,
+    messageColor: clc.brightRedOrange,
   },
   WARN: {
     levelColor: clc.yellowBright,

@@ -14,6 +14,8 @@ export const colorsExtended = {
   magenta: (text: string) => `\x1b[35m${text}\x1b[0m`,
   blue: (text: string) => `\x1b[34m${text}\x1b[0m`,
   white: (text: string) => `\x1b[37m${text}\x1b[0m`,
+  redOrange: (text: string) => `\x1b[38;5;202m${text}\x1b[0m`,
+  brightRedOrange: (text: string) => `\x1b[38;5;202m\x1b[1m${text}\x1b[0m`,
 };
 
 export const clc = { ...colors.clc, ...colorsExtended };
