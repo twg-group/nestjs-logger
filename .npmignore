@@ -20,4 +20,4 @@ node_modules
 tsconfig.json
 yarn.lock
 
-*.tsbuildinfo
+**/*.tsbuildinfo
