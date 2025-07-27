@@ -1,6 +1,6 @@
 {
   "name": "@twg-group/nestjs-logger",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Enhanced logger for NestJS applications with JSON formatting, redaction and more",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
