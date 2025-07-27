@@ -1,5 +1,32 @@
 # Logger Module for NestJS
 
+## Table of Contents
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+  - [Global Usage](#global-usage)
+  - [Builder Pattern Configuration](#builder-pattern-configuration)
+  - [Usage in Services](#usage-in-services)
+- [Usage Examples](#usage-examples)
+  - [Basic Logging](#basic-logging)
+  - [Different Log Levels](#different-log-levels)
+  - [Error Handling](#error-handling)
+- [Configuration](#configuration)
+  - [Logger Options](#logger-options)
+  - [Global Configuration](#global-configuration)
+- [Output Examples](#output-examples)
+  - [Text Format (Default)](#text-format-default)
+  - [JSON Format (Production - Compact)](#json-format-production---compact)
+  - [JSON Format (Development - Pretty Printed)](#json-format-development---pretty-printed)
+  - [Error Logging](#error-logging)
+- [Timestamp Feature](#timestamp-feature)
+- [Usage in Different Parts of Application](#usage-in-different-parts-of-application)
+  - [In Controllers](#in-controllers)
+  - [In Guards and Interceptors](#in-guards-and-interceptors)
+  - [Creating Separate Instances](#creating-separate-instances)
+- [Environment Variables](#environment-variables)
+- [Best Practices](#best-practices)
+- [License](#license)
+
 Extended logger for NestJS with additional features:
 - Colored console formatting
 - JSON logging format
@@ -37,6 +64,26 @@ import { LoggerModule } from '@twg-group/nestjs-logger';
   ],
 })
 export class AppModule {}
+```
+
+### Builder Pattern Configuration
+
+```typescript
+// Advanced configuration using method chaining
+const logger = new Logger('UserService')
+  .setLogLevels(['log', 'error', 'warn', 'fatal', 'info'])
+  .setRedactKeys(['password', 'token', 'apiKey'])
+  .addField('version', '1.0.0')
+  .addField('environment', process.env.NODE_ENV)
+  .setCtxParams(['service:users']);
+
+// Configure based on environment
+if (process.env.NODE_ENV === 'production') {
+  // Production: Enable JSON format, disable pretty printing for performance
+  logger.enableJsonFormat().disablePrettyPrint();
+}
+
+logger.info('Logger configured successfully');
 ```
 
 ### Usage in Services
@@ -152,7 +199,13 @@ LoggerModule.forRoot({
 [Nest] 2025-07-26T22:20:44.514Z  INFO [AppController][Constructor] Message after 1000ms +1000ms
 ```
 
-### JSON Format
+### JSON Format (Production - Compact)
+
+```json
+{"timestamp":"2025-07-26T22:20:43.510Z","service":"MyService","level":"INFO","context":"ExampleService","data":{"message":"Message without timestamp"},"tags":["test"]}
+```
+
+### JSON Format (Development - Pretty Printed)
 
 ```json
 {
@@ -206,72 +259,6 @@ setTimeout(() => {
 }, 1000);
 ```
 
-## Advanced Features
-
-### Adding Custom Fields
-
-```typescript
-// Add fields that will be included in all logs
-logger.addField('version', '1.2.3')
-      .addField('environment', process.env.NODE_ENV);
-
-logger.log('Application started'); // will contain version and environment
-```
-
-### Working with Context
-
-```typescript
-// Set context parameters
-logger.setCtxParams(['requestId:abc123', 'userId:123']);
-
-// All subsequent logs will contain these parameters
-logger.log('Processing request'); // [UserService][requestId:abc123][userId:123] Processing request
-```
-
-### Log Level Management
-
-```typescript
-// Set active levels
-logger.setLogLevels(['error', 'warn', 'fatal']); // only errors and warnings
-
-// Add/remove levels
-logger.addLogLevel('debug');
-logger.removeLogLevel('verbose');
-
-// Get current levels
-const levels = logger.getLogLevels(); // ['error', 'warn', 'fatal', 'debug']
-```
-
-### Redacting Sensitive Data
-
-```typescript
-// Set keys to redact
-logger.setRedactKeys(['password', 'token', 'secret', 'apiKey']);
-
-// Log object with sensitive data
-logger.log({
-  user: 'john',
-  password: 'secret123',  // will be replaced with '[REDACTED]'
-  email: 'john@example.com'
-});
-
-// Output: { user: 'john', password: '[REDACTED]', email: 'john@example.com' }
-```
-
-### JSON Formatting
-
-```typescript
-// Enable JSON format
-logger.enableJsonFormat();
-
-// Enable pretty formatting
-logger.enablePrettyPrint();
-
-// Disable formats
-logger.disableJsonFormat();
-logger.disablePrettyPrint();
-```
-
 ## Usage in Different Parts of Application
 
 ### In Controllers
@@ -314,6 +301,7 @@ export class AuthGuard implements CanActivate {
 // For specific usage
 const customLogger = new Logger('CustomContext', {
   jsonFormat: true,
+  prettyPrintJson: false,
   redactKeys: ['sensitive'],
   logLevels: ['error', 'warn']
 });
@@ -335,7 +323,10 @@ SERVICE_NAME=MyAwesomeService  # used as logger id by default
 4. **Structured Data**: Pass objects as message content, not as parameters
 5. **Parameters as Strings**: Pass additional context as string parameters (e.g., 'userId:123')
 6. **Avoid Object Parameters**: Don't pass objects as parameters - they will display as [object Object]
-7. **Global Configuration**: Configure logger at application level for consistency
+7. **Builder Pattern**: Use method chaining for complex logger configuration
+8. **Production Settings**: Use compact JSON format in production for better performance and logging system compatibility
+9. **Development Settings**: Enable pretty printing in development for better readability
+10. **Global Configuration**: Configure logger at application level for consistency
 
 ## License
 
