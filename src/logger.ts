@@ -47,8 +47,7 @@ const levelFormats: LoggerLevelFormats = {
   },
 };
 
-const defaultOptions: LoggerOptions = {
-  id: 'Nest',
+export const defaultLoggerOptions: LoggerOptions = {
   jsonFormat: false,
   prettyPrintJson: false,
   levelFormats,
@@ -72,10 +71,9 @@ export class Logger extends ConsoleLogger {
     @Inject(LOGGER_MODULE_OPTIONS)
     private readonly moduleOptions?: LoggerModuleOptions,
   ) {
-    const currentContext =
-      context || (parentClass?.constructor as { name?: string })?.name;
+    const currentContext = context || parentClass?.constructor?.name;
     const mergedOptions = {
-      ...defaultOptions,
+      ...defaultLoggerOptions,
       ...(moduleOptions?.loggerOptions || {}),
       ...options,
     };
@@ -84,6 +82,9 @@ export class Logger extends ConsoleLogger {
       ...{ logLevels: [] },
     };
     super(currentContext, consoleOptions);
+    if (!this.config.id) {
+      this.config.id = 'Nest';
+    }
     this.setOptions(mergedOptions);
   }
 
@@ -270,7 +271,7 @@ export class Logger extends ConsoleLogger {
     const logEntry: Record<string, unknown> = {
       ...this.additionalFields,
       timestamp: new Date().toISOString(),
-      service: this.config.id || 'Nest',
+      service: this.config.id,
       level,
       context: this.context,
       data: this.format(message),
