@@ -82,8 +82,8 @@ export class Logger extends ConsoleLogger {
       ...{ logLevels: [] },
     };
     super(currentContext, consoleOptions);
-    if (!this.config.id) {
-      this.config.id = 'Nest';
+    if (!mergedOptions.id) {
+      mergedOptions.id = 'Nest';
     }
     this.setOptions(mergedOptions);
   }
