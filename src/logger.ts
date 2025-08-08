@@ -48,6 +48,7 @@ const levelFormats: LoggerLevelFormats = {
 };
 
 export const defaultLoggerOptions: LoggerOptions = {
+  id: 'Nest',
   jsonFormat: false,
   prettyPrintJson: false,
   levelFormats,
@@ -82,17 +83,17 @@ export class Logger extends ConsoleLogger {
       ...{ logLevels: [] },
     };
     super(currentContext, consoleOptions);
-    if (!mergedOptions.id) {
-      mergedOptions.id = 'Nest';
-    }
+
     this.setOptions(mergedOptions);
   }
 
   private prefix(): string {
-    return (
-      clc.green(`[${this.config.id}]`) +
-      clc.gray(` ${new Date().toISOString()}`)
-    );
+    const out: string[] = [];
+    if (this.config.id) {
+      out.push(clc.green(`[${this.config.id}]`));
+    }
+    out.push(clc.gray(`${new Date().toISOString()}`));
+    return out.join(' ');
   }
 
   setContext(context: string): this {
