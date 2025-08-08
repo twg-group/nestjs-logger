@@ -38,7 +38,7 @@ export interface LoggerLevelFormats {
 export type LogLevel = NestLogLevel | 'info';
 
 export type LoggerOptions = Omit<ConsoleLoggerOptions, 'logLevels'> & {
-  id?: string | null;
+  id?: string;
   jsonFormat?: boolean;
   prettyPrintJson?: boolean;
   levelFormats?: LoggerLevelFormats;
