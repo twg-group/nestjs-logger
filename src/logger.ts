@@ -277,18 +277,18 @@ export class Logger extends ConsoleLogger {
       context: this.context,
       data: this.format(message),
     };
-
+    if (this.config.id) {
+      logEntry.service = this.config.id;
+    }
     if (this.ctxParams.length > 0 || params.length > 0) {
       logEntry.tags = [
         ...this.ctxParams,
         ...params.map((p) => this.safeToString(p)),
       ];
     }
-
     if (this.config?.timestamp) {
       logEntry.timestampDiff = this.getTimestampDiff();
     }
-
     return this.config.prettyPrintJson
       ? JSON.stringify(logEntry, null, 2)
       : JSON.stringify(logEntry);
