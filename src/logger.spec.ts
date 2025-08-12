@@ -106,12 +106,12 @@ describe('Logger', () => {
     });
 
     it('should add field', () => {
-      const result = logger.addField('key', 'value');
+      const result = logger.addField({ key: 'value' });
       expect(result).toBe(logger);
     });
 
     it('should remove field', () => {
-      logger.addField('key', 'value');
+      logger.addField({ key: 'value' });
       const result = logger.removeField('key');
       expect(result).toBe(logger);
     });
@@ -385,13 +385,13 @@ describe('Logger', () => {
     });
 
     it('should handle multiple field additions', () => {
-      logger.addField('field1', 'value1').addField('field2', 'value2');
+      logger.addField({ field1: 'value1' }).addField({ field2: 'value2' });
       logger.log('test message');
       expect(mockConsoleLog).toHaveBeenCalled();
     });
 
     it('should handle field removal', () => {
-      logger.addField('field1', 'value1').removeField('field1');
+      logger.addField({ field1: 'value1' }).removeField('field1');
       logger.log('test message');
       expect(mockConsoleLog).toHaveBeenCalled();
     });

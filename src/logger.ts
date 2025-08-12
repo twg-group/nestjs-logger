@@ -161,8 +161,10 @@ export class Logger extends ConsoleLogger {
     return this;
   }
 
-  addField(key: string, value: unknown): this {
-    this.additionalFields[key] = value;
+  addField(obj: Record<string, unknown>): this {
+    for (const key of Object.keys(obj)) {
+      this.additionalFields[key] = obj[key];
+    }
     return this;
   }
 
